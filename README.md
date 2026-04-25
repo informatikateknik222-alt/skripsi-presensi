@@ -98,9 +98,9 @@ Tunggu beberapa saat sampai terminal tidak lagi memunculkan teks error/build.
 
 ## 🔑 Hak Akses (Roles)
 Sistem ini membedakan fitur berdasarkan role pengguna:
-1.  **ADMIN / HRD**: Dapat mengelola semua fitur (CRUD pegawai, persetujuan cuti, rekap presensi, buat slip gaji).
-2.  **KEUANGAN**: Berhak melakukan auto-generate payroll dan mencetak slip gaji.
-3.  **EMPLOYEE (Pegawai)**: Hanya dapat melihat rekap riwayat presensi sendiri, mengajukan cuti mandiri, dan melihat slip gaji mereka sendiri.
+1.  **Admin**: Dapat mengelola semua fitur sistem dan master data.
+2.  **SDM (Sumber Daya Manusia)**: Mengelola data pegawai, rekap kehadiran (presensi), dan memberikan persetujuan pengajuan cuti.
+3.  **Keuangan**: Mengelola fitur penggajian, melakukan proses *auto-generate payroll*, dan mencetak slip gaji karyawan.
 
 ## 📝 Fitur Utama Tambahan Terakhir
 *   **Direct Print to PDF**: Fitur cetak langsung tanpa download file di menu Presensi, Penggajian, dan Cuti (Menggunakan `jsPDF`).
