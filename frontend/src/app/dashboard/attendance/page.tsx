@@ -29,6 +29,7 @@ export default function AttendancePage() {
   // Data States
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [rekapData, setRekapData] = useState<{ summary?: RekapSummary, data: AttendanceRecord[] }>({ data: [] });
+  const [employeeMap, setEmployeeMap] = useState<Record<string, string>>({});
   
   // UI States
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +51,29 @@ export default function AttendancePage() {
         if (info.role) setUserRole(info.role);
       } catch (e) {}
     }
+
+    // Fetch employee mapping
+    const fetchEmployees = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const res = await fetch("http://localhost:4000/api/employees", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const map: Record<string, string> = {};
+          data.forEach((emp: any) => {
+            // Map both ID pegawai and User ID just in case
+            if (emp.id_pegawai) map[emp.id_pegawai] = emp.name;
+            if (emp.userId) map[emp.userId] = emp.name;
+          });
+          setEmployeeMap(map);
+        }
+      } catch (err) {
+        console.error("Gagal memuat data pegawai", err);
+      }
+    };
+    fetchEmployees();
 
     setMounted(true);
     return () => clearInterval(timer);
@@ -212,13 +236,15 @@ export default function AttendancePage() {
         const checkIn = new Date(rec.checkIn).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
         const checkOut = rec.checkOut ? new Date(rec.checkOut).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) : '-';
         let status = rec.status === "PRESENT" ? "Hadir" : rec.status === "LATE" ? "Terlambat" : rec.status;
+        const empName = employeeMap[rec.userId] || "Unknown";
+
         return userRole !== "EMPLOYEE" 
-          ? [rec.userId || '-', date, checkIn, checkOut, status]
+          ? [rec.userId || '-', empName, date, checkIn, checkOut, status]
           : [date, checkIn, checkOut, status];
       });
 
       const head = userRole !== "EMPLOYEE" 
-        ? [['ID Pegawai', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status']]
+        ? [['ID Pegawai', 'Nama Pegawai', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status']]
         : [['Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status']];
 
       autoTable(doc, {
@@ -374,6 +400,29 @@ export default function AttendancePage() {
 
             {activeTab !== "log" && renderSummaryCards(rekapData.summary)}
 
+            {userRole !== "EMPLOYEE" && (() => {
+              const dataToProcess = activeTab === "log" ? records : rekapData.data;
+              const lateRecords = dataToProcess.filter(r => r.status === "LATE");
+              if (lateRecords.length === 0) return null;
+              
+              return (
+                <div className="mb-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+                  <h4 className="text-sm font-semibold text-amber-400 mb-3 flex items-center gap-2">
+                    <AlertCircle size={16} /> Daftar Pegawai Terlambat ({lateRecords.length} orang)
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {lateRecords.map((rec, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-medium text-slate-300">
+                        <Users size={12} className="text-slate-500" />
+                        {employeeMap[rec.userId] || rec.userId || 'Unknown'}
+                        <span className="text-amber-500 font-mono ml-1">{new Date(rec.checkIn).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Export Header */}
             {activeTab !== "log" && (
               <div className="flex justify-between items-center mb-4 mt-2">
@@ -411,7 +460,12 @@ export default function AttendancePage() {
                 <table className="w-full text-left text-sm text-slate-300">
                   <thead className="text-xs uppercase bg-slate-900/50 text-slate-400 border-b border-slate-700">
                     <tr>
-                      {userRole !== "EMPLOYEE" && <th className="px-6 py-4 font-medium">Pegawai ID</th>}
+                      {userRole !== "EMPLOYEE" && (
+                        <>
+                          <th className="px-6 py-4 font-medium">Pegawai ID</th>
+                          <th className="px-6 py-4 font-medium">Nama Pegawai</th>
+                        </>
+                      )}
                       <th className="px-6 py-4 font-medium">Tanggal</th>
                       <th className="px-6 py-4 font-medium">Masuk</th>
                       <th className="px-6 py-4 font-medium">Keluar</th>
@@ -422,7 +476,10 @@ export default function AttendancePage() {
                     {(activeTab === "log" ? records : rekapData.data).map((rec, i) => (
                       <tr key={i} className="hover:bg-slate-900/50/80 transition-colors">
                         {userRole !== "EMPLOYEE" && (
-                          <td className="px-6 py-4 font-mono text-xs text-slate-400">{rec.userId || '-'}</td>
+                          <>
+                            <td className="px-6 py-4 font-mono text-xs text-slate-400">{rec.userId || '-'}</td>
+                            <td className="px-6 py-4 font-medium text-slate-300">{employeeMap[rec.userId] || 'Unknown'}</td>
+                          </>
                         )}
                         <td className="px-6 py-4 font-medium text-slate-300">
                           {new Date(rec.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
