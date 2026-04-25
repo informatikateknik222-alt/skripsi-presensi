@@ -214,10 +214,21 @@ export default function AttendancePage() {
       startY += 10;
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text(`Periode Laporan : ${periodeMap[activeTab] || 'Live Log'}`, 14, startY);
+      
+      const labelX = 14;
+      const colonX = 45;
+      const valueX = 48;
+
+      doc.text("Periode Laporan", labelX, startY);
+      doc.text(":", colonX, startY);
+      doc.setFont("helvetica", "bold");
+      doc.text(periodeMap[activeTab] || 'Live Log', valueX, startY);
       
       startY += 6;
-      doc.text(`Tanggal Cetak   : ${dateNow}`, 14, startY);
+      doc.setFont("helvetica", "normal");
+      doc.text("Tanggal Cetak", labelX, startY);
+      doc.text(":", colonX, startY);
+      doc.text(dateNow, valueX, startY);
 
       // Summary
       if (activeTab !== "log" && rekapData.summary) {
