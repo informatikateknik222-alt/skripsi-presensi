@@ -1,0 +1,17 @@
+{
+  "name": "skripsi-presensi",
+  "version": "1.0.0",
+  "description": "Script root untuk menjalankan semua service sekaligus",
+  "scripts": {
+    "dev": "concurrently -k \"yarn start:auth\" \"yarn start:employee\" \"yarn start:attendance\" \"yarn start:payroll\" \"yarn start:gateway\" \"yarn start:frontend\"",
+    "start:auth": "yarn --cwd backend/auth-service start:dev",
+    "start:employee": "yarn --cwd backend/employee-service start:dev",
+    "start:attendance": "yarn --cwd backend/attendance-service start:dev",
+    "start:payroll": "yarn --cwd backend/payroll-service start:dev",
+    "start:gateway": "yarn --cwd backend/api-gateway start:dev",
+    "start:frontend": "yarn --cwd frontend dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

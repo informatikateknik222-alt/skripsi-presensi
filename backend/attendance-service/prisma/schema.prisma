@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  userId    String   // ID dari service auth / employee
+  date      DateTime @default(now())
+  checkIn   DateTime
+  checkOut  DateTime?
+  status    AttendanceStatus @default(PRESENT)
+  latitude  Float?
+  longitude Float?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id        String   @id @default(uuid())
+  userId    String   // ID dari service auth / employee
+  startDate DateTime
+  endDate   DateTime
+  type      LeaveType
+  reason    String
+  attachmentBase64 String?
+  status    LeaveStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  ON_LEAVE
+}
+
+enum LeaveType {
+  SICK
+  ANNUAL
+  MATERNITY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
