@@ -377,7 +377,11 @@ export default function LeavePage() {
       <div className="bg-slate-800/80 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-slate-700 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Manajemen Cuti</h1>
-          <p className="text-slate-400 mt-1">Kelola pengajuan cuti dan izin Anda di sini.</p>
+          <p className="text-slate-400 mt-1">
+            {userRole === "EMPLOYEE" 
+              ? "Kelola pengajuan cuti dan izin Anda di sini." 
+              : "Kelola dan setujui pengajuan cuti seluruh pegawai di sini."}
+          </p>
         </div>
         <button 
           onClick={() => setShowForm(true)}
@@ -389,35 +393,56 @@ export default function LeavePage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="bg-indigo-500/10 text-indigo-400 p-4 rounded-xl">
-            <CalendarDays size={28} />
+      {userRole === "EMPLOYEE" ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
+            <div className="bg-indigo-500/10 text-indigo-400 p-4 rounded-xl">
+              <CalendarDays size={28} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-400">Total Kuota Cuti</p>
+              <h3 className="text-2xl font-bold text-white">{totalKuota} Hari</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-400">Total Kuota Cuti</p>
-            <h3 className="text-2xl font-bold text-white">{totalKuota} Hari</h3>
+          <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
+            <div className="bg-amber-500/10 text-amber-400 p-4 rounded-xl">
+              <Clock size={28} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-400">Sisa Cuti</p>
+              <h3 className="text-2xl font-bold text-white">{sisaCuti} Hari</h3>
+            </div>
+          </div>
+          <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
+            <div className="bg-emerald-500/10 text-emerald-400 p-4 rounded-xl">
+              <CheckCircle2 size={28} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-400">Cuti Terpakai</p>
+              <h3 className="text-2xl font-bold text-white">{cutiTerpakai} Hari</h3>
+            </div>
           </div>
         </div>
-        <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="bg-amber-500/10 text-amber-400 p-4 rounded-xl">
-            <Clock size={28} />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+            <p className="text-sm font-medium text-indigo-400 mb-1">Total Pengajuan</p>
+            <h4 className="text-2xl font-bold text-indigo-400">{riwayatCuti.length}</h4>
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-400">Sisa Cuti</p>
-            <h3 className="text-2xl font-bold text-white">{sisaCuti} Hari</h3>
+          <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+            <p className="text-sm font-medium text-amber-400 mb-1">Menunggu</p>
+            <h4 className="text-2xl font-bold text-amber-400">{riwayatCuti.filter(c => c.status === "PENDING").length}</h4>
+          </div>
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+            <p className="text-sm font-medium text-emerald-400 mb-1">Disetujui</p>
+            <h4 className="text-2xl font-bold text-emerald-400">{riwayatCuti.filter(c => c.status === "APPROVED").length}</h4>
+          </div>
+          <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+            <p className="text-sm font-medium text-rose-400 mb-1">Ditolak</p>
+            <h4 className="text-2xl font-bold text-rose-400">{riwayatCuti.filter(c => c.status === "REJECTED").length}</h4>
           </div>
         </div>
-        <div className="bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="bg-emerald-500/10 text-emerald-400 p-4 rounded-xl">
-            <CheckCircle2 size={28} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-400">Cuti Terpakai</p>
-            <h3 className="text-2xl font-bold text-white">{cutiTerpakai} Hari</h3>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Content Tabs */}
       <div className="bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 shadow-sm overflow-hidden">
