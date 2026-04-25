@@ -470,6 +470,19 @@ export default function LeavePage() {
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 rounded-t-full"></div>
               )}
             </button>
+            {userRole !== "EMPLOYEE" && (
+              <button
+                onClick={() => setActiveTab("kuota")}
+                className={`pb-4 text-sm font-medium transition-colors relative ${
+                  activeTab === "kuota" ? "text-indigo-400" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Sisa Kuota Cuti
+                {activeTab === "kuota" && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 rounded-t-full"></div>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -584,6 +597,66 @@ export default function LeavePage() {
               </ul>
             </div>
           )}
+
+          {activeTab === "kuota" && userRole !== "EMPLOYEE" && (
+            <div className="overflow-x-auto">
+              <div className="mb-4 text-sm text-slate-400">Menampilkan sisa kuota cuti tahunan per karyawan (Total Hak Cuti: 12 Hari)</div>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-700/50 text-sm font-medium text-slate-400">
+                    <th className="pb-3 font-semibold">Nama Pegawai</th>
+                    <th className="pb-3 font-semibold">Departemen</th>
+                    <th className="pb-3 font-semibold text-center">Terpakai</th>
+                    <th className="pb-3 font-semibold text-center">Sisa Cuti</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm text-slate-300">
+                  {employees.map((emp) => {
+                    const empUserId = emp.userId || emp.id;
+                    const empCutiTerpakai = riwayatCuti
+                      .filter(c => c.userId === empUserId && c.status === "APPROVED" && c.type === "ANNUAL")
+                      .reduce((total, c) => {
+                         const start = new Date(c.startDate);
+                         const end = new Date(c.endDate);
+                         if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                           const diffTime = Math.abs(end.getTime() - start.getTime());
+                           return total + Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                         }
+                         return total;
+                      }, 0);
+                    const empSisa = Math.max(0, 12 - empCutiTerpakai);
+                    
+                    return (
+                      <tr key={emp.id} className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
+                        <td className="py-4">
+                          <div className="font-bold text-white">{emp.name}</div>
+                          <div className="text-xs text-slate-400">ID: {emp.id_pegawai}</div>
+                        </td>
+                        <td className="py-4">{emp.department?.name || '-'} / {emp.position?.name || '-'}</td>
+                        <td className="py-4 text-center">
+                          <span className="inline-flex items-center justify-center px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 font-mono text-slate-300">{empCutiTerpakai}</span>
+                        </td>
+                        <td className="py-4 text-center">
+                          <span className={`inline-flex items-center justify-center px-3 py-1 rounded-lg font-bold ${
+                            empSisa > 5 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                            empSisa > 0 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
+                            'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          }`}>
+                            {empSisa} Hari
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {employees.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-slate-400">Belum ada data pegawai</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
@@ -617,9 +690,36 @@ export default function LeavePage() {
                   {isFetchingEmployee && <div className="absolute right-3 top-3 text-slate-400"><Loader2 size={18} className="animate-spin" /></div>}
                 </div>
                 {employeeData ? (
-                  <div className="text-xs text-emerald-400 font-medium bg-emerald-500/10 p-2 rounded-lg mt-1 border border-emerald-500/20">
-                    Ditemukan: <strong>{employeeData.name}</strong> &bull; {employeeData.department?.name || 'Departemen'} &bull; {employeeData.position?.name || 'Jabatan'}
-                  </div>
+                  (() => {
+                    const empUserId = employeeData.userId || employeeData.id;
+                    const empCutiTerpakai = riwayatCuti
+                      .filter(c => c.userId === empUserId && c.status === "APPROVED" && c.type === "ANNUAL")
+                      .reduce((total, c) => {
+                         const start = new Date(c.startDate);
+                         const end = new Date(c.endDate);
+                         if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                           const diffTime = Math.abs(end.getTime() - start.getTime());
+                           return total + Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                         }
+                         return total;
+                      }, 0);
+                    const empSisaCuti = Math.max(0, 12 - empCutiTerpakai);
+
+                    return (
+                      <div className="text-xs text-emerald-400 font-medium bg-emerald-500/10 p-3 rounded-xl mt-2 border border-emerald-500/20 shadow-sm">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            Ditemukan: <strong className="text-sm text-emerald-300">{employeeData.name}</strong>
+                            <div className="text-emerald-500/80 mt-0.5">{employeeData.department?.name || 'Departemen'} &bull; {employeeData.position?.name || 'Jabatan'}</div>
+                          </div>
+                          <div className="text-right bg-emerald-900/50 px-2 py-1.5 rounded-lg border border-emerald-500/20">
+                            <div className="text-[10px] text-emerald-500/80 uppercase tracking-wider mb-0.5">Sisa Cuti</div>
+                            <div className="text-sm font-bold text-emerald-400">{empSisaCuti} Hari</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
                 ) : idPegawai && !isFetchingEmployee ? (
                    <div className="text-xs text-rose-500 font-medium mt-1">Data pegawai tidak ditemukan</div>
                 ) : null}
