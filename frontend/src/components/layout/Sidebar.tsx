@@ -41,7 +41,10 @@ export function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-slate-800">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="RS Efarina Logo" className="w-8 h-8 rounded-lg shadow-sm" />
-          <span className="text-lg font-bold text-white tracking-tight">RS <span className="text-indigo-400">Efarina</span></span>
+          <div className="flex flex-col justify-center">
+            <span className="text-sm font-bold text-white tracking-tight leading-none mb-1">RS <span className="text-indigo-400">Efarina Etaham</span></span>
+            <span className="text-[10px] text-slate-400 uppercase tracking-widest leading-none">Karawang</span>
+          </div>
         </div>
       </div>
 
