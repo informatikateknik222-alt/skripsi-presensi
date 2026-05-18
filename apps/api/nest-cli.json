@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/employee/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/employee/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/employee",
+  "projects": {
+    "attendance": {
+      "type": "application",
+      "root": "apps/attendance",
+      "entryFile": "main",
+      "sourceRoot": "apps/attendance/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/attendance/tsconfig.app.json"
+      }
+    },
+    "employee": {
+      "type": "application",
+      "root": "apps/employee",
+      "entryFile": "main",
+      "sourceRoot": "apps/employee/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/employee/tsconfig.app.json"
+      }
+    },
+    "payroll": {
+      "type": "application",
+      "root": "apps/payroll",
+      "entryFile": "main",
+      "sourceRoot": "apps/payroll/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/payroll/tsconfig.app.json"
+      }
+    }
+  }
+}

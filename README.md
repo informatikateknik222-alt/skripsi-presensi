@@ -1,109 +1,65 @@
 # Sistem Presensi dan Penggajian (HR Dashboard)
 
-Aplikasi ini adalah sistem informasi untuk manajemen **Presensi, Penggajian, dan Cuti Karyawan** dengan arsitektur microservices menggunakan Node.js, NestJS, Next.js, dan PostgreSQL. Sistem ini dirancang untuk Rumah Sakit Efarina Etaham Karawang.
+Aplikasi ini adalah sistem informasi untuk manajemen **Presensi, Penggajian, dan Cuti Karyawan** dengan arsitektur **NestJS Monorepo**. Sistem ini dirancang untuk Rumah Sakit Efarina Etaham Karawang.
 
 ## 🛠️ Teknologi yang Digunakan
 
-*   **Frontend**: Next.js 15, React, Tailwind CSS, Lucide Icons
-*   **Backend (Microservices)**: NestJS (TypeScript)
-    *   API Gateway
-    *   Auth Service
-    *   Attendance Service (Integrasi Fingerspot)
-    *   Employee Service
-    *   Payroll Service
-*   **Database**: PostgreSQL (menggunakan Prisma ORM)
-*   **Deployment & Containerization**: Docker
+*   **Frontend**: Next.js 15, React, Tailwind CSS
+*   **Backend**: NestJS Monorepo (TypeScript)
+    *   **Employee Service** (Port 4001): Data Pegawai, Departemen, Jabatan.
+    *   **Attendance Service** (Port 4002): Absensi & Cuti.
+    *   **Payroll Service** (Port 4003): Penggajian.
+*   **Database**: PostgreSQL (Per-Schema Management)
+*   **ORM**: Prisma ORM
 
 ---
 
-## 📋 Persyaratan Sistem (Prerequisites)
+## 📋 Persyaratan Sistem
 
-Sebelum menjalankan aplikasi, pastikan komputer Anda sudah terinstal:
-
-1.  **Node.js** (Minimal versi 18.x) - [Download di sini](https://nodejs.org/)
-2.  **Yarn** - *Package manager utama yang digunakan di proyek ini*
-    ```bash
-    npm install --global yarn
-    ```
-3.  **Docker Desktop** - Untuk menjalankan database PostgreSQL - [Download di sini](https://www.docker.com/products/docker-desktop/)
-4.  **Git** - [Download di sini](https://git-scm.com/)
+1.  **Node.js** (v18+) & **Yarn**
+2.  **Docker Desktop** (Untuk PostgreSQL)
 
 ---
 
 ## 🚀 Cara Menjalankan Aplikasi
 
-Aplikasi ini menggunakan sistem *Monorepo script* untuk menjalankan seluruh layanan (5 service backend + 1 frontend) secara bersamaan hanya dengan 1 perintah.
-
-### 1. Kloning Repository
-```bash
-git clone https://github.com/informatikateknik222-alt/skripsi-presensi.git
-cd skripsi-presensi
-```
-
-### 2. Jalankan Database (Docker)
-Pastikan Docker Desktop sudah berjalan, lalu buka terminal di root folder (`skripsi-presensi`) dan jalankan:
+### 1. Persiapan Database
+Pastikan Docker berjalan, lalu jalankan:
 ```bash
 docker-compose up -d
 ```
-*Perintah ini akan mendownload image PostgreSQL dan membuat container database beserta inisialisasi awal.*
 
-### 3. Install Dependensi
-Karena ini arsitektur microservice, Anda perlu menginstal dependencies untuk root, frontend, dan masing-masing backend. Anda bisa melakukan `yarn install` pada setiap folder:
-
+### 2. Install Dependensi
 ```bash
-# Install root
+# Install root & backend
 yarn install
+cd backend && yarn install && cd ..
 
-# Install Frontend
-cd frontend
-yarn install
-cd ..
-
-# Install API Gateway
-cd backend/api-gateway
-yarn install
-cd ../..
-
-# Install layanan lainnya (Lakukan hal yang sama untuk auth, attendance, employee, dan payroll)
-cd backend/auth-service && yarn install && cd ../..
-cd backend/employee-service && yarn install && cd ../..
-cd backend/attendance-service && yarn install && cd ../..
-cd backend/payroll-service && yarn install && cd ../..
+# Install frontend
+cd frontend && yarn install && cd ..
 ```
 
-### 4. Sinkronisasi Database (Prisma Migrations)
-Jalankan migrasi database di setiap service backend untuk membentuk struktur tabel di PostgreSQL:
-
+### 3. Sinkronisasi Database (Prisma)
+Jalankan perintah ini di dalam folder `backend`:
 ```bash
-cd backend/auth-service && npx prisma db push && cd ../..
-cd backend/employee-service && npx prisma db push && cd ../..
-cd backend/attendance-service && npx prisma db push && cd ../..
-cd backend/payroll-service && npx prisma db push && cd ../..
+cd backend
+npx prisma db push --schema=apps/employee/prisma/schema.prisma
+npx prisma db push --schema=apps/attendance/prisma/schema.prisma
+npx prisma db push --schema=apps/payroll/prisma/schema.prisma
 ```
 
-*(Opsional: Anda bisa menjalankan skrip seeding `npx prisma db seed` jika ada pada auth-service atau employee-service untuk data awal admin).*
-
-### 5. Jalankan Aplikasi (Semua Service)
-Kembali ke **root directory** (`skripsi-presensi`), lalu jalankan perintah:
+### 4. Jalankan Aplikasi
+Dari root directory, jalankan:
 ```bash
 yarn dev
 ```
-Perintah ini akan mengeksekusi `concurrently` yang langsung menjalankan **Frontend** dan seluruh **Backend Services** secara bersamaan. 
-
-Tunggu beberapa saat sampai terminal tidak lagi memunculkan teks error/build.
-*   **Akses Frontend (Dashboard)**: `http://localhost:3000`
-*   **Akses API Gateway**: `http://localhost:4000`
 
 ---
 
-## 🔑 Hak Akses (Roles)
-Sistem ini membedakan fitur berdasarkan role pengguna:
-1.  **Admin**: Dapat mengelola semua fitur sistem dan master data.
-2.  **SDM (Sumber Daya Manusia)**: Mengelola data pegawai, rekap kehadiran (presensi), dan memberikan persetujuan pengajuan cuti.
-3.  **Keuangan**: Mengelola fitur penggajian, melakukan proses *auto-generate payroll*, dan mencetak slip gaji karyawan.
-
-## 📝 Fitur Utama Tambahan Terakhir
-*   **Direct Print to PDF**: Fitur cetak langsung tanpa download file di menu Presensi, Penggajian, dan Cuti (Menggunakan `jsPDF`).
+## 🏗️ Struktur Folder Baru
+- `/backend`: NestJS Monorepo berisi semua service.
+- `/frontend`: Aplikasi web Next.js.
+- `/db-init`: Script inisialisasi database.
 
 ---
 *Dibuat untuk keperluan Skripsi / Tugas Akhir - 2026.*

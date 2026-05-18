@@ -19,8 +19,8 @@ const FINGERSPOT_DB_CONFIG = {
   database: 'fingerspot_db' // Ganti dengan nama database bawaan fingerspot
 };
 
-// URL API Gateway kita (meneruskan ke attendance-service/fingerspot/webhook)
-const WEBHOOK_URL = 'http://localhost:4000/api/attendance/fingerspot/webhook';
+// URL Attendance Service (Monorepo Port 4002)
+const WEBHOOK_URL = 'http://localhost:4002/api/attendance/fingerspot/webhook';
 
 async function syncAttendance() {
   let connection;

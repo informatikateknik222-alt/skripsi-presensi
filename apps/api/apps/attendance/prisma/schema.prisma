@@ -1,0 +1,58 @@
+// apps/attendance/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ATTENDANCE_DATABASE_URL")
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  userId    String   // ID dari service employee
+  date      DateTime @default(now())
+  checkIn   DateTime
+  checkOut  DateTime?
+  status    AttendanceStatus @default(PRESENT)
+  latitude  Float?
+  longitude Float?
+  notes     String?
+  shift     String?  // Pagi, Siang, Malam, General
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id        String   @id @default(uuid())
+  userId    String   // ID dari service employee
+  startDate DateTime
+  endDate   DateTime
+  type      LeaveType
+  reason    String
+  attachmentBase64 String?
+  status    LeaveStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  ON_LEAVE
+}
+
+enum LeaveType {
+  SICK
+  ANNUAL
+  MATERNITY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

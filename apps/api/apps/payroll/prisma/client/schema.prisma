@@ -1,0 +1,43 @@
+// apps/payroll/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYROLL_DATABASE_URL")
+}
+
+model Salary {
+  id          String   @id @default(uuid())
+  userId      String   @unique // ID dari service employee
+  basicSalary Decimal
+  allowance   Decimal  @default(0)
+  deduction   Decimal  @default(0)
+  netSalary   Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PayrollRecord {
+  id             String        @id @default(uuid())
+  userId         String // ID dari service employee
+  period         DateTime // Bulan dan tahun penggajian
+  basicSalary    Decimal
+  totalAllowance Decimal
+  totalDeduction Decimal
+  bpjsDeduction  Decimal?      @default(0)
+  taxDeduction   Decimal?      @default(0)
+  netSalary      Decimal
+  status         PayrollStatus @default(DRAFT)
+  paymentDate    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSED
+  PAID
+}

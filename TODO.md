@@ -1,11 +1,13 @@
-# Fix JSON Parsing Error "Unexpected token 'E', Error occurred..."
+# Project Updates
 
-## Status: In Progress
+## Monorepo Migration (Completed)
+1. [x] Convert backend to NestJS Monorepo structure
+2. [x] Consolidate 5 services into 3 main apps (Employee, Attendance, Payroll)
+3. [x] Implement Per-Schema Database management in PostgreSQL
+4. [x] Set up separate Prisma schemas for each app
+5. [x] Clean up unused folders (Gateway, Auth Service, Junk files)
+6. [x] Update root scripts for simplified startup
 
-1. [x] Create this TODO
-2. [x] Fix API Gateway bodyParser (main.ts)
-3. [x] Add global HTTP exception filter (payroll-service)
-4. [x] Update payroll-service app.module.ts
-5. [ ] Startup all services with commands
-6. [ ] Test endpoints
-7. [ ] Complete task
+## Ongoing / Next Steps
+- [ ] Migrate Fingerprint sync scripts to Monorepo structure
+- [ ] Update frontend service URLs to point directly to microservice ports (4001, 4002, 4003)

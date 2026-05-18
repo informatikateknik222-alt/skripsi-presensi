@@ -1,15 +1,18 @@
 {
   "name": "skripsi-presensi",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "version": "1.0.0",
-  "description": "Script root untuk menjalankan semua service sekaligus",
+  "description": "Monorepo root untuk Skripsi Presensi",
   "scripts": {
-    "dev": "concurrently -k \"yarn start:auth\" \"yarn start:employee\" \"yarn start:attendance\" \"yarn start:payroll\" \"yarn start:gateway\" \"yarn start:frontend\"",
-    "start:auth": "yarn --cwd backend/auth-service start:dev",
-    "start:employee": "yarn --cwd backend/employee-service start:dev",
-    "start:attendance": "yarn --cwd backend/attendance-service start:dev",
-    "start:payroll": "yarn --cwd backend/payroll-service start:dev",
-    "start:gateway": "yarn --cwd backend/api-gateway start:dev",
-    "start:frontend": "yarn --cwd frontend dev"
+    "dev": "concurrently -k \"yarn workspace api start:employee\" \"yarn workspace api start:attendance\" \"yarn workspace api start:payroll\" \"yarn workspace web dev\"",
+    "start:employee": "yarn workspace api start:employee",
+    "start:attendance": "yarn workspace api start:attendance",
+    "start:payroll": "yarn workspace api start:payroll",
+    "start:web": "yarn workspace web dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
