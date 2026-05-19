@@ -7,22 +7,26 @@ Dokumen ini berisi Use Case Diagram dan Flowchart sistem yang telah disesuaikan 
 Diagram ini menunjukkan interaksi antara Actor (Karyawan, SDM, Keuangan) dengan sistem.
 
 ```mermaid
-useCaseDiagram
-    actor "Karyawan" as emp
-    actor "Admin SDM" as sdm
-    actor "Bagian Keuangan" as keu
+flowchart LR
+    %% Actors
+    emp(("Karyawan"))
+    sdm(("Admin SDM"))
+    keu(("Bagian Keuangan"))
 
-    package "Sistem Presensi & Penggajian (Port 4001-4003)" {
-        usecase "Login (Dummy)" as UC1
-        usecase "Presensi Masuk/Pulang" as UC2
-        usecase "Melihat Rekap Presensi" as UC3
-        usecase "Mengelola Data Karyawan" as UC4
-        usecase "Mengelola Jabatan & Dept" as UC5
-        usecase "Pengajuan Cuti" as UC6
-        usecase "Generate Gaji Bulanan" as UC7
-        usecase "Melihat Slip Gaji" as UC8
-    }
+    %% System
+    subgraph Sistem["Sistem Presensi & Penggajian (Port 4001-4003)"]
+        direction TB
+        UC1(["Login (Dummy)"])
+        UC2(["Presensi Masuk/Pulang"])
+        UC3(["Melihat Rekap Presensi"])
+        UC4(["Mengelola Data Karyawan"])
+        UC5(["Mengelola Jabatan & Dept"])
+        UC6(["Pengajuan Cuti"])
+        UC7(["Generate Gaji Bulanan"])
+        UC8(["Melihat Slip Gaji"])
+    end
 
+    %% Relationships
     emp --> UC1
     emp --> UC2
     emp --> UC3
