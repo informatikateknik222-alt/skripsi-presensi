@@ -56,6 +56,64 @@ export default function PayrollPage() {
     }
   }, []);
 
+  const calculateHospitalStandardSalary = (positionName: string, attendanceCount: number = 22, lateCount: number = 0) => {
+    const pos = (positionName || "").toLowerCase();
+
+    let basicSalary = 3500000; // UMR base umum
+    let tunjanganProfesi = 0;
+    let tunjanganRisiko = 0;
+    let tunjanganShift = 0;
+    let tunjanganKehadiran = attendanceCount * 25000; // Uang transport/makan per kehadiran
+    let tunjanganJabatan = 0;
+
+    if (pos.includes("perawat") || pos.includes("nurse")) {
+      basicSalary = 4000000;
+      tunjanganProfesi = 750000; // STR/Profesi
+      tunjanganRisiko = 300000;  // Risiko infeksi medis
+      tunjanganShift = 400000;   // Shift rotasi
+    } else if (pos.includes("bidan")) {
+      basicSalary = 4000000;
+      tunjanganProfesi = 750000;
+      tunjanganRisiko = 250000;
+      tunjanganShift = 400000;
+    } else if (pos.includes("farmasi") || pos.includes("apoteker")) {
+      basicSalary = 4200000;
+      tunjanganProfesi = 800000;
+      tunjanganShift = 300000;
+    } else if (pos.includes("laboratorium") || pos.includes("analis") || pos.includes("radiologi")) {
+      basicSalary = 4100000;
+      tunjanganProfesi = 700000;
+      tunjanganRisiko = 500000; // Risiko radiasi/spesimen
+      tunjanganShift = 300000;
+    } else if (pos.includes("admin") || pos.includes("pendaftaran") || pos.includes("kasir") || pos.includes("rekam medis")) {
+      basicSalary = 3500000;
+      tunjanganJabatan = 300000;
+      tunjanganShift = pos.includes("pendaftaran") || pos.includes("kasir") ? 250000 : 0;
+    } else if (pos.includes("cleaning") || pos.includes("cs") || pos.includes("security") || pos.includes("satpam") || pos.includes("driver") || pos.includes("supir")) {
+      basicSalary = 3000000;
+      tunjanganShift = 300000;
+      tunjanganRisiko = pos.includes("cleaning") ? 150000 : 0;
+    } else {
+      // Staff Manajemen, HRD, IT, Keuangan
+      basicSalary = 4500000;
+      tunjanganJabatan = 1000000;
+    }
+
+    const totalAllowance = tunjanganProfesi + tunjanganRisiko + tunjanganShift + tunjanganKehadiran + tunjanganJabatan;
+    const totalDeduction = lateCount * 25000; // Potongan terlambat
+    const bpjsDeduction = basicSalary * 0.04; // 4% JHT+JP+Kes karyawan
+    const taxDeduction = basicSalary * 0.05; // Estimasi PPh21 5%
+
+    return {
+      basicSalary,
+      totalAllowance,
+      totalDeduction,
+      bpjsDeduction,
+      taxDeduction,
+      netSalary: basicSalary + totalAllowance - totalDeduction - bpjsDeduction - taxDeduction
+    };
+  };
+
   const handleFetchEmployee = async (id: string) => {
     if (!id) {
       setEmployeeData(null);
@@ -64,6 +122,40 @@ export default function PayrollPage() {
     setIsFetchingEmployee(true);
     const data = await payrollService.getEmployeeById(id);
     setEmployeeData(data);
+    
+    // Auto calculate if new record
+    if (data && !isEditMode) {
+      try {
+        const attData = await payrollService.getAttendance().catch(() => []);
+        const [yearStr, monthStr] = formData.period.split("-");
+        const targetYear = parseInt(yearStr);
+        const targetMonth = parseInt(monthStr) - 1;
+
+        const userAtt = Array.isArray(attData) ? attData.filter((a: any) => {
+          const d = new Date(a.date);
+          return (a.userId === data.id || a.user?.id === data.id || a.userId === data.userId || a.userId === id) &&
+                 d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+        }) : [];
+
+        const totalHadir = userAtt.filter((a: any) => a.status === 'PRESENT' || a.status === 'LATE').length;
+        const totalTelat = userAtt.filter((a: any) => a.status === 'LATE').length;
+
+        const positionName = data.position?.name || "";
+        const standardSalary = calculateHospitalStandardSalary(positionName, totalHadir, totalTelat);
+        
+        setFormData(prev => ({
+          ...prev,
+          basicSalary: standardSalary.basicSalary,
+          totalAllowance: standardSalary.totalAllowance,
+          totalDeduction: standardSalary.totalDeduction,
+          bpjsDeduction: standardSalary.bpjsDeduction,
+          taxDeduction: standardSalary.taxDeduction
+        }));
+      } catch (err) {
+        console.error("Failed to calculate attendance linked salary", err);
+      }
+    }
+    
     setIsFetchingEmployee(false);
   };
 
@@ -155,7 +247,7 @@ export default function PayrollPage() {
   };
 
   const handleAutoGenerate = async () => {
-    if (!window.confirm("Proses Auto-Generate slip gaji bulan ini?")) return;
+    if (!window.confirm("Proses Auto-Generate slip gaji standar RS untuk bulan ini?")) return;
     
     setIsSubmitting(true);
     try {
@@ -177,33 +269,31 @@ export default function PayrollPage() {
         throw new Error("Gagal mengambil daftar pegawai. Data tidak valid.");
       }
 
+      let generatedCount = 0;
+
       for (const emp of empData) {
+        const positionName = emp.position?.name || "";
         const userAtt = thisMonthAtt.filter(a => a.userId === emp.id || a.user?.id === emp.id);
         const totalHadir = userAtt.filter(a => a.status === 'PRESENT' || a.status === 'LATE').length;
         const totalTelat = userAtt.filter(a => a.status === 'LATE').length;
 
-        const basicSalary = 4000000;
-        const totalAllowance = totalHadir * 50000;
-        const potonganTelat = totalTelat * 25000;
-        const bpjsDeduction = basicSalary * 0.03;
-        const taxDeduction = basicSalary * 0.05;
-        const totalDeduction = potonganTelat;
-        const netSalary = basicSalary + totalAllowance - totalDeduction - bpjsDeduction - taxDeduction;
+        const standardSalary = calculateHospitalStandardSalary(positionName, totalHadir, totalTelat);
 
         await payrollService.createRecord({
           userId: emp.userId || emp.id,
           period: periodStr,
-          basicSalary,
-          totalAllowance,
-          totalDeduction,
-          bpjsDeduction,
-          taxDeduction,
-          netSalary,
+          basicSalary: standardSalary.basicSalary,
+          totalAllowance: standardSalary.totalAllowance,
+          totalDeduction: standardSalary.totalDeduction,
+          bpjsDeduction: standardSalary.bpjsDeduction,
+          taxDeduction: standardSalary.taxDeduction,
+          netSalary: standardSalary.netSalary,
           status: "DRAFT"
         });
+        generatedCount++;
       }
       
-      alert("Berhasil!");
+      alert(`Berhasil generate ${generatedCount} slip gaji pegawai.`);
       await refresh();
     } catch (e: any) {
       alert("Gagal: " + e.message);

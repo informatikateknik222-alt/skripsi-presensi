@@ -115,7 +115,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions (Employee) */}
+      {/* Quick Actions */}
       {userRole === "EMPLOYEE" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link href="/dashboard/attendance" className="bg-indigo-600 p-6 rounded-2xl shadow-sm text-white flex justify-between items-center hover:bg-indigo-700 transition-colors cursor-pointer group">
@@ -143,6 +143,29 @@ export default function DashboardPage() {
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white">Slip Gaji</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">Lihat riwayat penggajian</p>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      {(userRole === "ADMIN" || userRole === "SDM") && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link href="/dashboard/employees" className="bg-indigo-600 p-6 rounded-2xl shadow-sm text-white flex justify-between items-center hover:bg-indigo-700 transition-colors cursor-pointer group">
+            <div>
+              <p className="text-indigo-100 font-medium mb-1">Manajemen SDM</p>
+              <h3 className="text-xl font-bold">Kelola Data Pegawai</h3>
+            </div>
+            <div className="bg-white/20 p-3 rounded-full group-hover:scale-110 transition-transform">
+              <Users size={24} />
+            </div>
+          </Link>
+          <Link href="/dashboard/attendance" className="bg-white dark:bg-slate-800/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-500/50 transition-colors cursor-pointer flex items-center gap-4">
+            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-xl">
+              <Clock size={24} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white">Monitoring Presensi</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Pantau kehadiran harian</p>
             </div>
           </Link>
         </div>

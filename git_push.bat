@@ -2,7 +2,7 @@
 git config user.name "informatikateknik222-alt"
 git config user.email "informatikateknik222-alt@github.com"
 git add .
-git commit -m "Update: Refactor arsitektur menjadi Enterprise Monorepo (apps/web & apps/api)"
+git commit -m "feat: implement Zustand & React Query, single active session, koreksi shift, and RS payroll standards"
 git branch -M main
 git remote add origin https://github.com/informatikateknik222-alt/skripsi-presensi.git
 git push -u origin main

@@ -38,7 +38,7 @@ export function TopNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_info");
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   useEffect(() => {

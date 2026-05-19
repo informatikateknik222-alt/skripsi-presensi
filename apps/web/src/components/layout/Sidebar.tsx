@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 import { 
   X, LayoutDashboard, Users, Clock, 
@@ -18,6 +18,7 @@ const allNavigation = [
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () => void }) {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const [userRole, setUserRole] = useState("EMPLOYEE");
 
   useEffect(() => {
@@ -31,9 +32,23 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
   }, []);
 
   const handleLogout = () => {
+    // Hapus dari daftar sesi aktif
+    try {
+      const saved = localStorage.getItem("user_info");
+      if (saved) {
+        const info = JSON.parse(saved);
+        if (info.username) {
+          const accountId = info.username.toLowerCase();
+          const activeSessions = JSON.parse(localStorage.getItem("active_sessions") || "{}");
+          delete activeSessions[accountId];
+          localStorage.setItem("active_sessions", JSON.stringify(activeSessions));
+        }
+      }
+    } catch (e) {}
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_info");
-    window.location.href = "/login";
+    router.replace("/");
   };
 
   const allowedNav = allNavigation.filter(nav => nav.roles.includes(userRole));

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 export default function RootLayout({
   children,
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans min-h-screen`} suppressHydrationWarning>
         <LanguageProvider>
           <ThemeProvider>
-            {children}
+            <QueryProvider>
+              {children}
+            </QueryProvider>
           </ThemeProvider>
         </LanguageProvider>
       </body>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopNavbar } from "@/components/layout/TopNavbar";
 import { Loader2 } from "lucide-react";
@@ -10,19 +11,19 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("access_token");
     if (!token) {
-      window.location.href = "/login";
-      await new Promise(() => {}); // Freeze execution to prevent state update during redirect
+      router.replace("/");
       return;
     }
 
     setIsAuthenticated(true);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     checkAuth().finally(() => {
