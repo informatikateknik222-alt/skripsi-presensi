@@ -75,14 +75,14 @@ export default function AttendancePage() {
       }
       
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
+      doc.setFontSize(14); // slightly smaller to avoid text overflow
       doc.setFont("helvetica", "bold");
-      doc.text("RS EFARINA ETAHAM KARAWANG", 105, 18, { align: "center" });
+      doc.text("RUMAH SAKIT EFARINA ETAHAM KARAWANG", 105, 16, { align: "center" });
       
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text("Jl. Syech Quro No. 1, Kec. Telagasari, Karawang, Jawa Barat 41381", 105, 24, { align: "center" });
-      doc.text("Email: hrd@efarina-karawang.co.id | Telp: (0267) 123456", 105, 28, { align: "center" });
+      doc.text("Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang", 105, 22, { align: "center" });
+      doc.text("Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com", 105, 27, { align: "center" });
 
       doc.setTextColor(30, 41, 59);
       doc.setFontSize(14);

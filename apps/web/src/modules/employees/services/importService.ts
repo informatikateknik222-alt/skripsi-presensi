@@ -94,8 +94,8 @@ export const importService = {
           });
           
           worksheet.addImage(logoId, {
-            tl: { col: 0.3, row: 0.1 },
-            ext: { width: 60, height: 60 }
+            tl: { col: 0.15, row: 0.1 },
+            ext: { width: 45, height: 45 }
           });
         }
       } catch (e) {
@@ -103,25 +103,25 @@ export const importService = {
       }
 
       // 2. Hospital Header
-      worksheet.getRow(1).height = 30; // Taller for bigger font
-      worksheet.mergeCells('C1:H1');
-      const titleCell = worksheet.getCell('C1');
+      worksheet.getRow(1).height = 20; 
+      worksheet.mergeCells('B1:H1');
+      const titleCell = worksheet.getCell('B1');
       titleCell.value = 'RUMAH SAKIT EFARINA ETAHAM KARAWANG';
-      titleCell.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FF000000' } };
+      titleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF000000' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
-      worksheet.getRow(2).height = 18;
-      worksheet.mergeCells('C2:H2');
-      const addrCell = worksheet.getCell('C2');
+      worksheet.getRow(2).height = 14;
+      worksheet.mergeCells('B2:H2');
+      const addrCell = worksheet.getCell('B2');
       addrCell.value = 'Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang';
-      addrCell.font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
+      addrCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
       addrCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
-      worksheet.getRow(3).height = 18;
-      worksheet.mergeCells('C3:H3');
-      const telpCell = worksheet.getCell('C3');
+      worksheet.getRow(3).height = 14;
+      worksheet.mergeCells('B3:H3');
+      const telpCell = worksheet.getCell('B3');
       telpCell.value = 'Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com';
-      telpCell.font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
+      telpCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
       telpCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       const sepRow = worksheet.getRow(4);
@@ -156,7 +156,7 @@ export const importService = {
       
       // Adjusted widths so it fits perfectly on A4 Landscape without wrapText issues
       worksheet.columns = [
-        { key: 'no', width: 4.5 },
+        { key: 'no', width: 8 },
         { key: 'idPegawai', width: 16 },
         { key: 'nama', width: 22 },
         { key: 'email', width: 28 },

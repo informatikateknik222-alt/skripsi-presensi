@@ -142,7 +142,14 @@ export default function LeavePage() {
 
     img.onload = () => {
       doc.addImage(img, 'PNG', 14, 12, 20, 20);
-      doc.text("RS EFARINA ETAHAM KARAWANG", 105, 18, { align: "center" });
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("RUMAH SAKIT EFARINA ETAHAM KARAWANG", 105, 18, { align: "center" });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang", 105, 23, { align: "center" });
+      doc.setFontSize(8);
+      doc.text("Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com", 105, 27, { align: "center" });
       doc.line(14, 34, 196, 34);
       drawContent(doc, 45);
     };

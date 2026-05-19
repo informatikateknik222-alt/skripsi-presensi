@@ -342,8 +342,8 @@ export default function PayrollPage() {
           });
           
           worksheet.addImage(logoId, {
-            tl: { col: 0.2, row: 0.1 },
-            ext: { width: 50, height: 50 }
+            tl: { col: 0.15, row: 0.1 },
+            ext: { width: 45, height: 45 }
           });
         }
       } catch (e) {
@@ -351,23 +351,23 @@ export default function PayrollPage() {
       }
 
       // 2. Hospital Header
-      worksheet.getRow(1).height = 22;
-      worksheet.mergeCells('C1:M1');
-      const titleCell = worksheet.getCell('C1');
+      worksheet.getRow(1).height = 20;
+      worksheet.mergeCells('B1:M1');
+      const titleCell = worksheet.getCell('B1');
       titleCell.value = 'RUMAH SAKIT EFARINA ETAHAM KARAWANG';
       titleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF000000' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       worksheet.getRow(2).height = 14;
-      worksheet.mergeCells('C2:M2');
-      const addrCell = worksheet.getCell('C2');
+      worksheet.mergeCells('B2:M2');
+      const addrCell = worksheet.getCell('B2');
       addrCell.value = 'Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang';
       addrCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
       addrCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       worksheet.getRow(3).height = 14;
-      worksheet.mergeCells('C3:M3');
-      const telpCell = worksheet.getCell('C3');
+      worksheet.mergeCells('B3:M3');
+      const telpCell = worksheet.getCell('B3');
       telpCell.value = 'Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com';
       telpCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
       telpCell.alignment = { vertical: 'middle', horizontal: 'left' };
@@ -404,7 +404,7 @@ export default function PayrollPage() {
         'Gaji Pokok', 'Tunjangan', 'Pot Lain', 'BPJS', 'PPh 21', 'Penerimaan Bersih', 'Status'
       ];
       worksheet.columns = [
-        { key: 'no', width: 4 },
+        { key: 'no', width: 8 },
         { key: 'idPegawai', width: 12 },
         { key: 'namaPegawai', width: 18 },
         { key: 'departemen', width: 14 },
@@ -699,14 +699,23 @@ export default function PayrollPage() {
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.text("Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang", 105, 23, { align: "center" });
+      doc.setFontSize(8);
+      doc.text("Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com", 105, 27, { align: "center" });
       doc.line(14, 34, 196, 34); 
       drawContent(doc, 45);
     };
 
     img.onerror = () => {
-      doc.text("RUMAH SAKIT EFARINA ETAHAM KARAWANG", 105, 20, { align: "center" });
-      doc.line(14, 26, 196, 26);
-      drawContent(doc, 35);
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("RUMAH SAKIT EFARINA ETAHAM KARAWANG", 105, 18, { align: "center" });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang", 105, 23, { align: "center" });
+      doc.setFontSize(8);
+      doc.text("Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com", 105, 27, { align: "center" });
+      doc.line(14, 34, 196, 34);
+      drawContent(doc, 45);
     };
   };
 
