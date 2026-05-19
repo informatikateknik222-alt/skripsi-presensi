@@ -4,14 +4,14 @@ Dokumen ini berisi Use Case Diagram dan Flowchart sistem yang telah disesuaikan 
 
 ## 1. Use Case Diagram
 
-Diagram ini menunjukkan interaksi antara Actor (Karyawan, SDM, Keuangan) dengan sistem.
+Diagram ini menunjukkan interaksi antara Actor (Admin, SDM, Keuangan) dengan sistem.
 
 ```mermaid
 flowchart LR
     %% Actors
     adm(("Admin"))
-    sdm(("Admin SDM"))
-    keu(("Bagian Keuangan"))
+    sdm(("SDM"))
+    keu(("Keuangan"))
 
     %% System
     subgraph Sistem["Sistem Presensi & Penggajian (Port 4001-4003)"]
@@ -19,7 +19,7 @@ flowchart LR
         UC1(["Login (Dummy)"])
         UC2(["Presensi Masuk/Pulang"])
         UC3(["Melihat Rekap Presensi"])
-        UC4(["Mengelola Data Karyawan"])
+        UC4(["Mengelola Data Pegawai"])
         UC5(["Mengelola Jabatan & Dept"])
         UC6(["Pengajuan Cuti"])
         UC7(["Generate Gaji Bulanan"])
@@ -57,7 +57,7 @@ flowchart TD
     
     Dash --> Menu{Pilih Menu}
     
-    Menu -- "Karyawan (4001)" --> EmpMng[Kelola Data Pegawai / Jabatan]
+    Menu -- "Pegawai (4001)" --> EmpMng[Kelola Data Pegawai / Jabatan]
     Menu -- "Presensi (4002)" --> AttMng[Input Absensi / Rekap Harian]
     Menu -- "Penggajian (4003)" --> PayMng[Generate Gaji / Slip Gaji]
     
