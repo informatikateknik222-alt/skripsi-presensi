@@ -18,16 +18,19 @@ export default function DashboardLayout({
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("access_token");
     if (!token) {
-      router.replace("/");
-      return;
+      router.replace("/login");
+      return false;
     }
 
     setIsAuthenticated(true);
+    return true;
   }, [router]);
 
   useEffect(() => {
-    checkAuth().finally(() => {
-      setLoading(false);
+    checkAuth().then((isAuth) => {
+      if (isAuth) {
+        setLoading(false);
+      }
     });
   }, [checkAuth]);
 
