@@ -355,22 +355,22 @@ export default function PayrollPage() {
       worksheet.mergeCells('B1:M1');
       const titleCell = worksheet.getCell('B1');
       titleCell.value = 'RUMAH SAKIT EFARINA ETAHAM KARAWANG';
-      titleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF000000' } };
-      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+      titleCell.font = { name: 'Times New Roman', size: 14, bold: true, color: { argb: 'FF000000' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
       worksheet.getRow(2).height = 14;
       worksheet.mergeCells('B2:M2');
       const addrCell = worksheet.getCell('B2');
       addrCell.value = 'Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang';
-      addrCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
-      addrCell.alignment = { vertical: 'middle', horizontal: 'left' };
+      addrCell.font = { name: 'Times New Roman', size: 9, color: { argb: 'FF000000' } };
+      addrCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
       worksheet.getRow(3).height = 14;
       worksheet.mergeCells('B3:M3');
       const telpCell = worksheet.getCell('B3');
       telpCell.value = 'Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com';
-      telpCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
-      telpCell.alignment = { vertical: 'middle', horizontal: 'left' };
+      telpCell.font = { name: 'Times New Roman', size: 9, color: { argb: 'FF000000' } };
+      telpCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
       // Separator line at row 4
       const sepRow = worksheet.getRow(4);
@@ -385,7 +385,7 @@ export default function PayrollPage() {
       worksheet.mergeCells('A6:M6');
       const docTitle = worksheet.getCell('A6');
       docTitle.value = 'LAPORAN PEMBUKUAN PENGGAJIAN PEGAWAI';
-      docTitle.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF000000' } };
+      docTitle.font = { name: 'Times New Roman', size: 11, bold: true, color: { argb: 'FF000000' } };
       docTitle.alignment = { vertical: 'middle', horizontal: 'center' };
 
       const dateNow = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -393,7 +393,7 @@ export default function PayrollPage() {
       worksheet.mergeCells('A7:M7');
       const docDate = worksheet.getCell('A7');
       docDate.value = `Tanggal Cetak: ${dateNow} WIB`;
-      docDate.font = { name: 'Arial', size: 9, italic: true, color: { argb: 'FF000000' } };
+      docDate.font = { name: 'Times New Roman', size: 9, italic: true, color: { argb: 'FF000000' } };
       docDate.alignment = { vertical: 'middle', horizontal: 'center' };
 
       worksheet.addRow([]); // Row 8 empty
@@ -422,7 +422,7 @@ export default function PayrollPage() {
       // Style the header row (Row 9)
       const headerRow = worksheet.getRow(9);
       headerRow.height = 25;
-      headerRow.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+      headerRow.font = { name: 'Times New Roman', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
       headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
       headerRow.eachCell((cell) => {
         cell.fill = {
@@ -473,7 +473,7 @@ export default function PayrollPage() {
         totalPajak += Number(record.taxDeduction) || 0;
         totalBersih += Number(record.netSalary) || 0;
 
-        row.font = { name: 'Arial', size: 8 };
+        row.font = { name: 'Times New Roman', size: 8 };
         row.alignment = { vertical: 'middle', wrapText: true };
         
         // Alignment for specific columns
@@ -518,7 +518,7 @@ export default function PayrollPage() {
 
       worksheet.mergeCells(`A${totalRow.number}:F${totalRow.number}`);
       
-      totalRow.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FF000000' } };
+      totalRow.font = { name: 'Times New Roman', size: 9, bold: true, color: { argb: 'FF000000' } };
       totalRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'right' };
       
       [7, 8, 9, 10, 11, 12].forEach(colIndex => {
@@ -557,13 +557,13 @@ export default function PayrollPage() {
       worksheet.mergeCells(`K${sigRow1.number}:M${sigRow1.number}`);
       const sigDateCell = worksheet.getCell(`K${sigRow1.number}`);
       sigDateCell.value = `Karawang, ${dateOnly}`;
-      sigDateCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
+      sigDateCell.font = { name: 'Times New Roman', size: 9, color: { argb: 'FF000000' } };
       sigDateCell.alignment = { horizontal: 'center' };
 
       worksheet.mergeCells(`K${sigRow2.number}:M${sigRow2.number}`);
       const sigTitleCell = worksheet.getCell(`K${sigRow2.number}`);
       sigTitleCell.value = 'Mengetahui,';
-      sigTitleCell.font = { name: 'Arial', size: 9, color: { argb: 'FF000000' } };
+      sigTitleCell.font = { name: 'Times New Roman', size: 9, color: { argb: 'FF000000' } };
       sigTitleCell.alignment = { horizontal: 'center' };
 
       worksheet.mergeCells(`K${sigRow3.number}:M${sigRow4.number}`); 
@@ -571,7 +571,7 @@ export default function PayrollPage() {
       worksheet.mergeCells(`K${sigRow5.number}:M${sigRow5.number}`);
       const sigNameCell = worksheet.getCell(`K${sigRow5.number}`);
       sigNameCell.value = 'Direktur / Kepala Keuangan';
-      sigNameCell.font = { name: 'Arial', size: 9, bold: true, underline: true, color: { argb: 'FF000000' } };
+      sigNameCell.font = { name: 'Times New Roman', size: 9, bold: true, underline: true, color: { argb: 'FF000000' } };
       sigNameCell.alignment = { horizontal: 'center' };
 
       // 7. Generate and Save File
