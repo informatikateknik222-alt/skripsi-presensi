@@ -94,8 +94,8 @@ export const importService = {
           });
           
           worksheet.addImage(logoId, {
-            tl: { col: 0.5, row: 0.2 }, // Slightly indented
-            ext: { width: 75, height: 75 } // Larger logo
+            tl: { col: 0.3, row: 0.1 },
+            ext: { width: 60, height: 60 }
           });
         }
       } catch (e) {
@@ -104,25 +104,25 @@ export const importService = {
 
       // 2. Hospital Header
       worksheet.getRow(1).height = 30; // Taller for bigger font
-      worksheet.mergeCells('A1:H1');
-      const titleCell = worksheet.getCell('A1');
+      worksheet.mergeCells('C1:H1');
+      const titleCell = worksheet.getCell('C1');
       titleCell.value = 'RUMAH SAKIT EFARINA ETAHAM KARAWANG';
       titleCell.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FF000000' } };
-      titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       worksheet.getRow(2).height = 18;
-      worksheet.mergeCells('A2:H2');
-      const addrCell = worksheet.getCell('A2');
+      worksheet.mergeCells('C2:H2');
+      const addrCell = worksheet.getCell('C2');
       addrCell.value = 'Jl. Syech Quro No. 1, Desa Talagamulya, Kec. Telagasari, Karawang';
       addrCell.font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
-      addrCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      addrCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       worksheet.getRow(3).height = 18;
-      worksheet.mergeCells('A3:H3');
-      const telpCell = worksheet.getCell('A3');
-      telpCell.value = 'Telp: (0267) 8486555 | Email: rsefarinaetaham@gmail.com';
+      worksheet.mergeCells('C3:H3');
+      const telpCell = worksheet.getCell('C3');
+      telpCell.value = 'Telp: 0267 48633003 | Email: rseetahamkarawang@gmail.com';
       telpCell.font = { name: 'Arial', size: 10, color: { argb: 'FF000000' } };
-      telpCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      telpCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
       const sepRow = worksheet.getRow(4);
       sepRow.height = 6;
