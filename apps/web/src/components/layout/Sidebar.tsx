@@ -48,6 +48,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean, onClose?: () =>
 
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_info");
+    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     router.replace("/");
   };
 

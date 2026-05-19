@@ -63,6 +63,7 @@ export default function LoginPage() {
 
       localStorage.setItem("access_token", "dummy-token-for-skripsi");
       localStorage.setItem("user_info", JSON.stringify(dummyUser));
+      document.cookie = "access_token=dummy-token-for-skripsi; path=/; max-age=86400"; // 1 hari
 
       router.push("/dashboard");
     } catch (err: any) {
