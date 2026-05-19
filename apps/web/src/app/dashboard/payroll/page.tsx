@@ -8,6 +8,7 @@ import { PayrollTable } from "@/modules/payroll/components/PayrollTable";
 import { PayrollModal } from "@/modules/payroll/components/PayrollModal";
 import { payrollService } from "@/modules/payroll/services/payrollService";
 import { PayrollRecord } from "@/modules/payroll/types/payroll.types";
+import { NumberingService } from "@/lib/numberingService";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import ExcelJS from "exceljs";
@@ -641,7 +642,14 @@ export default function PayrollPage() {
       doc.text(":", colonX, startY + 18);
       doc.text(periodStr, valueX, startY + 18);
       
-      startY += 26;
+      const slipNumber = NumberingService.generatePayrollSlipNumber(record.period, record.userId);
+      doc.text("No. Slip", startX, startY + 24);
+      doc.text(":", colonX, startY + 24);
+      doc.setFont("helvetica", "bold");
+      doc.text(slipNumber, valueX, startY + 24);
+      doc.setFont("helvetica", "normal");
+      
+      startY += 32;
 
       const tableData = [
         ['Gaji Pokok', formatCurrency(Number(record.basicSalary || 0))],
