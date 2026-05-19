@@ -9,7 +9,7 @@ Diagram ini menunjukkan interaksi antara Actor (Karyawan, SDM, Keuangan) dengan 
 ```mermaid
 flowchart LR
     %% Actors
-    emp(("Karyawan"))
+    adm(("Admin"))
     sdm(("Admin SDM"))
     keu(("Bagian Keuangan"))
 
@@ -27,11 +27,11 @@ flowchart LR
     end
 
     %% Relationships
-    emp --> UC1
-    emp --> UC2
-    emp --> UC3
-    emp --> UC6
-    emp --> UC8
+    adm --> UC1
+    adm --> UC2
+    adm --> UC3
+    adm --> UC6
+    adm --> UC8
 
     sdm --> UC1
     sdm --> UC4
