@@ -12,7 +12,8 @@
     "start:employee": "yarn workspace api start:employee",
     "start:attendance": "yarn workspace api start:attendance",
     "start:payroll": "yarn workspace api start:payroll",
-    "start:web": "yarn workspace web dev"
+    "start:web": "yarn workspace web dev",
+    "watch-push": "node watch-and-push.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
