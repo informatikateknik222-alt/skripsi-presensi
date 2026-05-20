@@ -16,8 +16,14 @@ export default function DashboardLayout({
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
+    const hasCookie = document.cookie.split(';').some((item) => item.trim().startsWith('access_token='));
     const token = localStorage.getItem("access_token");
-    if (!token) {
+    
+    if (!token || !hasCookie) {
+      // Bersihkan sisa data jika salah satu tidak sinkron untuk mencegah loop redireksi
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user_info");
+      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       router.replace("/login");
       return false;
     }

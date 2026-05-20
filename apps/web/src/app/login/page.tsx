@@ -14,10 +14,16 @@ export default function LoginPage() {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    const hasCookie = document.cookie.split(';').some((item) => item.trim().startsWith('access_token='));
     const token = localStorage.getItem("access_token");
-    if (token) {
+    
+    if (token && hasCookie) {
       router.replace("/dashboard");
     } else {
+      // Jika salah satu tidak sinkron, bersihkan sisa sesi untuk mencegah loop redireksi
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user_info");
+      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       setIsChecking(false);
     }
   }, [router]);

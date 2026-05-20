@@ -1,8 +1,12 @@
 "use client";
 
-import { Bell, Lock, Moon, Globe, Shield, Smartphone, Loader2 } from "lucide-react";
+import { 
+  Bell, Lock, Moon, Globe, Shield, Smartphone, Loader2,
+  Sliders, Cpu, Menu, Hash, ArrowUp, ArrowDown, Eye, EyeOff, Check 
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/context/LanguageContext";
+import { NumberingService } from "@/lib/numberingService";
 
 export default function SettingsPage() {
   const { language: currentLang, setLanguage: changeLang, t } = useTranslation();
@@ -22,8 +26,20 @@ export default function SettingsPage() {
   // Theme State
   const [theme, setTheme] = useState("dark");
 
+  // System Management States
+  const [userRole, setUserRole] = useState("EMPLOYEE");
+  const [activeSystemSubTab, setActiveSystemSubTab] = useState("modules");
+  const [systemModules, setSystemModules] = useState<any[]>([]);
+  const [systemMenus, setSystemMenus] = useState<any[]>([]);
+  const [systemNumbering, setSystemNumbering] = useState({
+    employee: { prefix: "RS", delimiter: "-", digits: 4 },
+    payroll: { prefix: "PAY", delimiter: "-", digits: 4 },
+    leave: { prefix: "LV", delimiter: "-", digits: 3 }
+  });
+
   // Load saved preferences on mount
   useEffect(() => {
+    // Load notifications settings
     const savedNotifs = localStorage.getItem("notif_settings");
     if (savedNotifs) {
       try {
@@ -34,8 +50,57 @@ export default function SettingsPage() {
       } catch (e) {}
     }
 
+    // Load theme setting
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) setTheme(savedTheme);
+
+    // Load user role
+    const savedUserInfo = localStorage.getItem("user_info");
+    if (savedUserInfo) {
+      try {
+        const info = JSON.parse(savedUserInfo);
+        if (info.role) setUserRole(info.role);
+      } catch (e) {}
+    }
+
+    // Load system module settings
+    const savedModules = localStorage.getItem("module_settings");
+    if (savedModules) {
+      try {
+        setSystemModules(JSON.parse(savedModules));
+      } catch (e) {}
+    } else {
+      const defaultModules = [
+        { id: "employees", name: "Manajemen Pegawai", isActive: true, description: "Pengelolaan data karyawan, departemen, dan jabatan." },
+        { id: "attendance", name: "Presensi & Fingerspot", isActive: true, description: "Pencatatan absensi harian dan integrasi mesin Fingerspot." },
+        { id: "payroll", name: "Sistem Penggajian", isActive: true, description: "Kalkulasi gaji bulanan, BPJS, insentif, dan slip gaji." },
+        { id: "leave", name: "Manajemen Cuti", isActive: true, description: "Pengajuan, verifikasi, dan kuota cuti tahunan." }
+      ];
+      setSystemModules(defaultModules);
+      localStorage.setItem("module_settings", JSON.stringify(defaultModules));
+    }
+
+    // Load system menu settings
+    const savedNav = localStorage.getItem("navigation_settings");
+    if (savedNav) {
+      try {
+        setSystemMenus(JSON.parse(savedNav));
+      } catch (e) {}
+    } else {
+      const defaultNavigation = [
+        { id: "dashboard", name: "dashboard", href: "/dashboard", iconName: "LayoutDashboard", roles: ["ADMIN", "SDM", "KEUANGAN", "EMPLOYEE"], isActive: true },
+        { id: "employees", name: "pegawai", href: "/dashboard/employees", iconName: "Users", roles: ["ADMIN", "SDM"], isActive: true },
+        { id: "attendance", name: "presensi", href: "/dashboard/attendance", iconName: "Clock", roles: ["ADMIN", "SDM", "EMPLOYEE"], isActive: true },
+        { id: "payroll", name: "penggajian", href: "/dashboard/payroll", iconName: "CreditCard", roles: ["ADMIN", "KEUANGAN", "EMPLOYEE"], isActive: true },
+        { id: "leave", name: "cuti", href: "/dashboard/leave", iconName: "FileText", roles: ["ADMIN", "SDM", "EMPLOYEE"], isActive: true },
+      ];
+      setSystemMenus(defaultNavigation);
+      localStorage.setItem("navigation_settings", JSON.stringify(defaultNavigation));
+    }
+
+    // Load system numbering settings
+    const savedNumbering = NumberingService.getSettings();
+    setSystemNumbering(savedNumbering);
   }, []);
 
   const saveNotificationSettings = () => {
@@ -94,6 +159,90 @@ export default function SettingsPage() {
     }
   };
 
+  // System Management Handler Functions
+  const handleToggleModule = (id: string) => {
+    const updated = systemModules.map(mod => 
+      mod.id === id ? { ...mod, isActive: !mod.isActive } : mod
+    );
+    setSystemModules(updated);
+    localStorage.setItem("module_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("system-settings-changed"));
+    
+    setMessage({ 
+      type: "success", 
+      text: `Modul "${updated.find(m => m.id === id)?.name}" berhasil ${updated.find(m => m.id === id)?.isActive ? 'diaktifkan' : 'dinonaktifkan'}!` 
+    });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleToggleMenu = (id: string) => {
+    const updated = systemMenus.map(menu => 
+      menu.id === id ? { ...menu, isActive: !menu.isActive } : menu
+    );
+    setSystemMenus(updated);
+    localStorage.setItem("navigation_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("system-settings-changed"));
+    
+    setMessage({ 
+      type: "success", 
+      text: `Visibilitas menu "${updated.find(m => m.id === id)?.name}" berhasil diperbarui!` 
+    });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleMoveMenu = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === systemMenus.length - 1) return;
+    
+    const updated = [...systemMenus];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+    
+    setSystemMenus(updated);
+    localStorage.setItem("navigation_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("system-settings-changed"));
+    
+    setMessage({ type: "success", text: "Urutan menu sidebar berhasil disesuaikan!" });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleToggleMenuRole = (menuId: string, role: string) => {
+    const updated = systemMenus.map(menu => {
+      if (menu.id === menuId) {
+        const roles = [...menu.roles];
+        if (roles.includes(role)) {
+          if (menuId === "dashboard" && role === "ADMIN") return menu; // Protect Admin access to dashboard
+          return { ...menu, roles: roles.filter(r => r !== role) };
+        } else {
+          return { ...menu, roles: [...roles, role] };
+        }
+      }
+      return menu;
+    });
+    setSystemMenus(updated);
+    localStorage.setItem("navigation_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("system-settings-changed"));
+    
+    setMessage({ type: "success", text: "Hak akses peran menu berhasil diperbarui!" });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleSaveNumberingSettings = (key: 'employee' | 'payroll' | 'leave', field: string, value: any) => {
+    const updated = {
+      ...systemNumbering,
+      [key]: {
+        ...systemNumbering[key],
+        [field]: value
+      }
+    };
+    setSystemNumbering(updated);
+    NumberingService.saveSettings(updated);
+    window.dispatchEvent(new Event("system-settings-changed"));
+  };
+
+
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
@@ -132,6 +281,15 @@ export default function SettingsPage() {
             <Globe size={18} />
             {t("bahasa")}
           </button>
+          {userRole === "ADMIN" && (
+            <button 
+              onClick={() => { setActiveTab("system"); setMessage({ type: "", text: "" }); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 font-medium rounded-xl transition-all ${activeTab === 'system' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20' : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+            >
+              <Sliders size={18} />
+              Manajemen Sistem
+            </button>
+          )}
         </div>
 
         {/* Setting Content */}
@@ -382,6 +540,333 @@ export default function SettingsPage() {
                   <div className={`w-5 h-5 rounded-full border-4 ${currentLang === 'en' ? 'border-indigo-500 bg-white' : 'border-slate-300 dark:border-slate-500 bg-white dark:bg-slate-800'}`}></div>
                 </label>
               </div>
+            </div>
+          )}
+
+          {/* SYSTEM MANAGEMENT TAB */}
+          {activeTab === "system" && userRole === "ADMIN" && (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl shadow-black/5 dark:shadow-black/10 animate-in fade-in duration-300 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              
+              <div className="relative">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Sliders size={20} className="text-indigo-500 dark:text-indigo-400" />
+                  Manajemen Sistem & Modul Enterprise
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Konfigurasi alur kerja monorepo, visibilitas menu sidebar, dan format auto-numbering Rumah Sakit.</p>
+              </div>
+
+              {message.text && (
+                <div className={`p-3 rounded-xl text-sm font-medium border relative z-10 ${
+                  message.type === 'error' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                }`}>
+                  {message.text}
+                </div>
+              )}
+
+              {/* Sub-Tabs Navigation */}
+              <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl relative z-10">
+                <button
+                  type="button"
+                  onClick={() => setActiveSystemSubTab("modules")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                    activeSystemSubTab === "modules"
+                      ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
+                  }`}
+                >
+                  <Cpu size={14} />
+                  Modul Aplikasi
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSystemSubTab("menus")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                    activeSystemSubTab === "menus"
+                      ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
+                  }`}
+                >
+                  <Menu size={14} />
+                  Struktur Menu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSystemSubTab("numbering")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                    activeSystemSubTab === "numbering"
+                      ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
+                  }`}
+                >
+                  <Hash size={14} />
+                  Format Penomoran
+                </button>
+              </div>
+
+              {/* SYSTEM SUB-TAB: MODULES */}
+              {activeSystemSubTab === "modules" && (
+                <div className="space-y-4 animate-in fade-in duration-200">
+                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-4 text-xs text-indigo-600 dark:text-indigo-300">
+                    <span className="font-bold">Informasi:</span> Menonaktifkan modul akan menyembunyikan halaman dari navigasi dan memblokir akses fitur secara global bagi seluruh pengguna non-administrator.
+                  </div>
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {systemModules.map((mod) => (
+                      <div key={mod.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${mod.isActive ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
+                            {mod.name}
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{mod.description}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleModule(mod.id)}
+                          className={`w-12 h-6 rounded-full relative transition-colors ${mod.isActive ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${mod.isActive ? 'right-1' : 'left-1'}`}></div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SYSTEM SUB-TAB: MENUS */}
+              {activeSystemSubTab === "menus" && (
+                <div className="space-y-4 animate-in fade-in duration-200">
+                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-4 text-xs text-indigo-600 dark:text-indigo-300">
+                    <span className="font-bold">Informasi:</span> Sesuaikan posisi urutan menu di sidebar menggunakan tombol panah, atau edit hak akses role yang diizinkan untuk melihat menu tersebut.
+                  </div>
+                  <div className="space-y-3">
+                    {systemMenus.map((menu, index) => (
+                      <div key={menu.id} className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          {/* Reordering buttons */}
+                          <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMoveMenu(index, 'up')}
+                              className="p-1 text-slate-400 hover:text-slate-850 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-750 rounded disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === systemMenus.length - 1}
+                              onClick={() => handleMoveMenu(index, 'down')}
+                              className="p-1 text-slate-400 hover:text-slate-850 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-750 rounded disabled:opacity-30 disabled:pointer-events-none"
+                            >
+                              <ArrowDown size={14} />
+                            </button>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-bold text-slate-900 dark:text-white capitalize">{t(menu.name)}</h4>
+                              <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-mono">{menu.href}</span>
+                            </div>
+                            <p className="text-xs text-slate-400 mt-0.5">Ikon: <span className="font-mono">{menu.iconName}</span></p>
+                          </div>
+                        </div>
+
+                        {/* Roles checkboxes */}
+                        <div className="flex flex-col gap-2">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Akses Hak Peran (Roles)</span>
+                          <div className="flex flex-wrap gap-2">
+                            {["ADMIN", "SDM", "KEUANGAN", "EMPLOYEE"].map(role => {
+                              const isChecked = menu.roles.includes(role);
+                              return (
+                                <button
+                                  type="button"
+                                  key={role}
+                                  onClick={() => handleToggleMenuRole(menu.id, role)}
+                                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all ${
+                                    isChecked
+                                      ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold"
+                                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
+                                  }`}
+                                >
+                                  {role}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Visibility toggle */}
+                        <div className="flex items-center gap-2 self-end md:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleMenu(menu.id)}
+                            className={`p-2 rounded-xl border transition-all ${
+                              menu.isActive
+                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-450"
+                            }`}
+                            title={menu.isActive ? "Sembunyikan menu" : "Tampilkan menu"}
+                          >
+                            {menu.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SYSTEM SUB-TAB: NUMBERING */}
+              {activeSystemSubTab === "numbering" && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-4 text-xs text-indigo-600 dark:text-indigo-300">
+                    <span className="font-bold">Informasi:</span> Atur struktur kode penomoran dokumen di sistem monorepo Anda. Perubahan akan langsung tercermin secara dinamis saat pembuatan ID Pegawai, Slip Gaji, atau Formulir Cuti Baru.
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* EMPLOYEE NUMBERING */}
+                    <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400"><Hash size={16} /></div>
+                        <h4 className="text-sm font-bold text-slate-800 dark:text-white">ID Pegawai</h4>
+                      </div>
+                      
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Prefix</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.employee.prefix}
+                            onChange={(e) => handleSaveNumberingSettings('employee', 'prefix', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Delimiter</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.employee.delimiter}
+                            onChange={(e) => handleSaveNumberingSettings('employee', 'delimiter', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-855 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Digit Urutan</label>
+                          <input
+                            type="number"
+                            min="2"
+                            max="8"
+                            value={systemNumbering.employee.digits}
+                            onChange={(e) => handleSaveNumberingSettings('employee', 'digits', parseInt(e.target.value) || 4)}
+                            className="w-full bg-white dark:bg-slate-860 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        
+                        <div className="pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
+                          <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wide">Live Preview:</span>
+                          <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 block mt-1">
+                            {`${systemNumbering.employee.prefix}${systemNumbering.employee.delimiter}HRD${systemNumbering.employee.delimiter}26${systemNumbering.employee.delimiter}${"1".padStart(systemNumbering.employee.digits, "0")}`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PAYROLL SLIP NUMBERING */}
+                    <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400"><Hash size={16} /></div>
+                        <h4 className="text-sm font-bold text-slate-800 dark:text-white">ID Slip Gaji</h4>
+                      </div>
+                      
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Prefix</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.payroll.prefix}
+                            onChange={(e) => handleSaveNumberingSettings('payroll', 'prefix', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Delimiter</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.payroll.delimiter}
+                            onChange={(e) => handleSaveNumberingSettings('payroll', 'delimiter', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-855 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Digit Urutan</label>
+                          <input
+                            type="number"
+                            min="2"
+                            max="8"
+                            value={systemNumbering.payroll.digits}
+                            onChange={(e) => handleSaveNumberingSettings('payroll', 'digits', parseInt(e.target.value) || 4)}
+                            className="w-full bg-white dark:bg-slate-860 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        
+                        <div className="pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
+                          <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wide">Live Preview:</span>
+                          <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 block mt-1">
+                            {`${systemNumbering.payroll.prefix}${systemNumbering.payroll.delimiter}052026${systemNumbering.payroll.delimiter}E8A1`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* LEAVE REQUEST NUMBERING */}
+                    <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400"><Hash size={16} /></div>
+                        <h4 className="text-sm font-bold text-slate-800 dark:text-white">ID Pengajuan Cuti</h4>
+                      </div>
+                      
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Prefix</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.leave.prefix}
+                            onChange={(e) => handleSaveNumberingSettings('leave', 'prefix', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Delimiter</label>
+                          <input
+                            type="text"
+                            value={systemNumbering.leave.delimiter}
+                            onChange={(e) => handleSaveNumberingSettings('leave', 'delimiter', e.target.value)}
+                            className="w-full bg-white dark:bg-slate-855 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-slate-400 font-medium">Digit Urutan</label>
+                          <input
+                            type="number"
+                            min="2"
+                            max="8"
+                            value={systemNumbering.leave.digits}
+                            onChange={(e) => handleSaveNumberingSettings('leave', 'digits', parseInt(e.target.value) || 3)}
+                            className="w-full bg-white dark:bg-slate-860 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        
+                        <div className="pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
+                          <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wide">Live Preview:</span>
+                          <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 block mt-1">
+                            {`${systemNumbering.leave.prefix}${systemNumbering.leave.delimiter}202605${systemNumbering.leave.delimiter}${"1".padStart(systemNumbering.leave.digits, "0")}`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -13,8 +13,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Jika sudah login, cegah akses kembali ke halaman portal/login
-  if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/') {
+  // Jika sudah login, cegah akses kembali ke halaman login
+  if (request.nextUrl.pathname === '/login') {
     if (token) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
@@ -24,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/'],
+  matcher: ['/dashboard', '/dashboard/:path*', '/login'],
 };
